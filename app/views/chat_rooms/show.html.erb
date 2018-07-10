@@ -1,0 +1,28 @@
+<%= current_user.email %>
+<h3>채팅참여자</h3>
+
+<div class="joined_user_list">
+<% @chat_room.users.each do |user| %>
+    <p><%= user.email %></p>
+<% end %>
+</div>
+
+<hr>
+<%= link_to 'Join', join_chat_room_path(@chat_room), method: 'POST', remote: true, class: 'join_room' %>
+<%= link_to 'Edit', edit_chat_room_path(@chat_room) %> |
+<%= link_to 'Back', chat_rooms_path %>
+
+<script>
+function user_joined(data) {
+    $('.joined_user_list').append(`<p>${data.email}</p>`);
+};
+var pusher = new Pusher('<%= ENV["pusher_key"]%>', {
+                        cluster: "<%= ENV["pusher_cluster"] %>",
+                        encrypted: true});
+
+var channel = pusher.subscribe('chat_room');
+channel.bind('join', function(data) {
+  console.log(data);
+  user_joined(data);
+});
+</script>
